@@ -37,16 +37,16 @@ async function run() {
     await client.connect();
 
     const database = client.db("queryDB");
-    const queryCollection = database.collection("querypost");
+    // const queryCollection = database.collection("querypost");
     const queryPostCollection = database.collection("posts");
     const recommendationPostCollection = database.collection("recommendation");
 
 
-    app.get('/posts',async(req,res)=> {
-        const cursor = queryCollection.find()
-        const result = await cursor.toArray()
-        res.send(result)
-    })
+    // app.get('/posts',async(req,res)=> {
+    //     const cursor = queryCollection.find()
+    //     const result = await cursor.toArray()
+    //     res.send(result)
+    // })
 
     app.post('/queryPost',async(req,res)=> {
       const postData = req.body;
@@ -91,6 +91,34 @@ async function run() {
       const result = await cursor.toArray()  
       res.send(result)
     })
+
+
+    // app.patch('/update')
+    app.patch('/update/:id',async(req,res)=>{
+      const id = req.params.id;
+      const updateData = req.body;
+      const query = {
+        _id:new ObjectId(id)
+      }
+      
+      const upDoc = {
+        $set:{
+          productImg:updateData.updateProductImg,
+          queryTitle:updateData.updateQueryTitle,
+          productName:updateData.updateProductName,
+          brandName:updateData.updateBrandName,
+          alternationReason:updateData.updateAlternationReason,
+          postedDate:updateData.updatePostedDate,
+          email:updateData.updateEmail,
+          name:updateData.updateUserName,
+          userPhoto:updateData.updateUserPhotoUrl
+        }
+      }
+      const options = { upsert: true };
+      const result = await queryPostCollection.updateOne(query,upDoc,options)
+      res.send(result)
+    })
+
 
     app.get('/details/:id',async(req,res)=> {
       const id = req.params.id;
