@@ -61,7 +61,23 @@ async function run() {
       res.send(result)
     })
     
+    app.get('/recommendationPost',async(req,res)=> {
+      const email = req.query.email;
+      const query = {
+        userEmail: email
+      }
+      const result = await recommendationPostCollection.find(query).toArray()
+      res.send(result)
+    })
 
+    app.get('/myrecommendation',async(req,res)=> {
+      const email = req.query.email;
+      const query = {
+        recommendUserEmail: email
+      }
+      const result = await recommendationPostCollection.find(query).toArray()
+      res.send(result)
+    })
 
     app.get('/queryPost',async(req,res)=> {
       let query ={}
