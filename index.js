@@ -47,6 +47,30 @@ async function run() {
     //     const result = await cursor.toArray()
     //     res.send(result)
     // })
+    const varifyToken = async(req,res,next)=>{
+      const token = req.cookies?.token;
+      console.log('value of the token in middleware',token);
+      if(!token){
+       return res.status(401).send({message:'not authorize'})
+      }
+      jwt.verify(token,process.env.ACCESS_TOKEN_SECREAT,(error,decoded)=>{
+        if(error){
+          console.log(error.message);
+          return res.status(401).send({message:"unauthorize"})
+        }
+        if(decoded){
+          console.log(decoded);
+          req.user = decoded
+          next()
+        }
+      })
+    }
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+    };
 
 
     app.post('/jwt',async(req,res)=>{
@@ -59,7 +83,20 @@ async function run() {
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
       
       })
+      .send({success:true})
     })
+
+    app.post('/logout',async(req,res)=> {
+      const user = req.body
+      res.clearCookie('token',{
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', 
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+        maxAge:0
+      }).send({success:true})
+    })
+
+
 
     app.post('/queryPost',async(req,res)=> {
       const postData = req.body;
@@ -92,7 +129,10 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/queryPost',async(req,res)=> {
+    app.get('/queryPost',varifyToken, async(req,res)=> {
+      if(req.user.email !== req.query.email){
+        return res.status(401).send({message:'Unauthorize Access'})
+      }
       let query ={}
       if(req.query?.email){
         query = {
@@ -107,7 +147,7 @@ async function run() {
 
 
     // app.patch('/update')
-    app.patch('/update/:id',async(req,res)=>{
+    app.patch('/update/:id',varifyToken,async(req,res)=>{
       const id = req.params.id;
       const updateData = req.body;
       const query = {
@@ -160,7 +200,7 @@ async function run() {
     })
 
 
-    app.get('/details/:id',async(req,res)=> {
+    app.get('/details/:id',varifyToken,async(req,res)=> {
       const id = req.params.id;
       const query = {
         _id : new ObjectId(id)
