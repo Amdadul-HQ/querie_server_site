@@ -20,7 +20,7 @@ app.use(express.json())
 
 
 
-const uri = "mongodb+srv://rimonamdadul301:NpaJ41xKxrTwYIo8@cluster1.pcyedvs.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster1.pcyedvs.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -34,7 +34,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const database = client.db("queryDB");
     // const queryCollection = database.collection("querypost");
@@ -47,6 +47,19 @@ async function run() {
     //     const result = await cursor.toArray()
     //     res.send(result)
     // })
+
+
+    app.post('/jwt',async(req,res)=>{
+      const user = req.body;
+      const token = jwt.sign(user,process.env.ACCESS_TOKEN_SECREAT,{expiresIn:'1h'})
+      res
+      .cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', 
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+      
+      })
+    })
 
     app.post('/queryPost',async(req,res)=> {
       const postData = req.body;
@@ -157,7 +170,7 @@ async function run() {
     })
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
