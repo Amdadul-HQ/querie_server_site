@@ -62,17 +62,6 @@ async function run() {
     })
     
 
-    // app.get()
-
-    // app.get('/recommendationPost',async(req,res)=>{
-    //   const email = 
-    // })
-
-    // app.get('/allquerypost',async(req,res)=>{
-    //   const cursor = queryPostCollection.find()
-    //   const result = await cursor.toArray()
-    //   res.send(result)
-    // })
 
     app.get('/queryPost',async(req,res)=> {
       let query ={}
