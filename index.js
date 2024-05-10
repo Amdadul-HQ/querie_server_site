@@ -119,6 +119,33 @@ async function run() {
       res.send(result)
     })
 
+    app.delete('/query/:id',async(req,res)=> {
+      const id = req.params.id;
+      const query = {
+        _id: new ObjectId(id)
+      }
+      const result = await queryPostCollection.deleteOne(query)
+      res.send(result)
+    })
+
+    app.delete('/recommendation/:id',async(req,res)=>{
+      const id = req.params.id
+      const query = {
+        _id :new ObjectId(id)
+      }
+      const result = await recommendationPostCollection.deleteOne(query)
+      res.send(result)
+    })
+
+    app.delete('/myrecommendation/:id',async(req,res)=>{
+      const id = req.params.id;
+      const query = {
+        _id: new ObjectId(id)
+      }
+      const result = await recommendationPostCollection.deleteOne(query)
+      res.send(result)
+    })
+
 
     app.get('/details/:id',async(req,res)=> {
       const id = req.params.id;
