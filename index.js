@@ -66,13 +66,6 @@ async function run() {
       })
     }
 
-    const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-    };
-
-
     app.post('/jwt',async(req,res)=>{
       const user = req.body;
       const token = jwt.sign(user,process.env.ACCESS_TOKEN_SECREAT,{expiresIn:'1h'})
@@ -106,12 +99,11 @@ async function run() {
 
     app.post('/recommendationPost',async(req,res)=> {
       const recommendationData = req.body;
-      console.log(recommendationData);
       const result = await recommendationPostCollection.insertOne(recommendationData)
       res.send(result)
     })
     
-    app.get('/recommendationPost',async(req,res)=> {
+    app.get('/recommendationPost',varifyToken,async(req,res)=> {
       const email = req.query.email;
       const query = {
         userEmail: email
@@ -120,7 +112,16 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/myrecommendation',async(req,res)=> {
+    app.get('/queryRecommendation/:id',async(req,res)=> {
+      const id = req.params.id;
+      const filter ={
+        queryId:id
+      }
+      const result = await recommendationPostCollection.find(filter).toArray()
+      res.send(result)
+    })
+
+    app.get('/myrecommendation',varifyToken,async(req,res)=> {
       const email = req.query.email;
       const query = {
         recommendUserEmail: email
@@ -129,10 +130,9 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/queryPost',varifyToken, async(req,res)=> {
-      if(req.user.email !== req.query.email){
-        return res.status(401).send({message:'Unauthorize Access'})
-      }
+    app.get('/queryPost', async(req,res)=> {
+      console.log(req.cookies);
+     
       let query ={}
       if(req.query?.email){
         query = {
@@ -147,7 +147,7 @@ async function run() {
 
 
     // app.patch('/update')
-    app.patch('/update/:id',varifyToken,async(req,res)=>{
+    app.patch('/update/:id',async(req,res)=>{
       const id = req.params.id;
       const updateData = req.body;
       const query = {
