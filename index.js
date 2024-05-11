@@ -37,16 +37,9 @@ async function run() {
     // await client.connect();
 
     const database = client.db("queryDB");
-    // const queryCollection = database.collection("querypost");
     const queryPostCollection = database.collection("posts");
     const recommendationPostCollection = database.collection("recommendation");
 
-
-    // app.get('/posts',async(req,res)=> {
-    //     const cursor = queryCollection.find()
-    //     const result = await cursor.toArray()
-    //     res.send(result)
-    // })
     const varifyToken = async(req,res,next)=>{
       const token = req.cookies?.token;
       console.log('value of the token in middleware',token);
@@ -131,8 +124,6 @@ async function run() {
     })
 
     app.get('/queryPost', async(req,res)=> {
-      console.log(req.cookies);
-     
       let query ={}
       if(req.query?.email){
         query = {
@@ -140,7 +131,6 @@ async function run() {
         }
       }
       const cursor = queryPostCollection.find(query)
-      console.log(cursor);
       const result = await cursor.toArray()  
       res.send(result)
     })
