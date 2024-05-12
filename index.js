@@ -11,6 +11,8 @@ const app = express()
 app.use(cors({
     origin: [
       "http://localhost:5173",
+      "https://shop-now-fc5a4.web.app",
+      "https://shop-now-fc5a4.firebaseapp.com"
     ],
     credentials: true,
   }))
@@ -62,7 +64,7 @@ async function run() {
       res
       .cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', 
+        secure: process.env.NODE_ENV === 'production' ? true : false , 
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
       
       })
@@ -73,7 +75,7 @@ async function run() {
       const user = req.body
       res.clearCookie('token',{
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', 
+        secure: process.env.NODE_ENV === 'production' ? true : false ,
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
         maxAge:0
       }).send({success:true})
