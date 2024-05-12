@@ -42,17 +42,14 @@ async function run() {
 
     const varifyToken = async(req,res,next)=>{
       const token = req.cookies?.token;
-      console.log('value of the token in middleware',token);
       if(!token){
        return res.status(401).send({message:'not authorize'})
       }
       jwt.verify(token,process.env.ACCESS_TOKEN_SECREAT,(error,decoded)=>{
         if(error){
-          console.log(error.message);
           return res.status(401).send({message:"unauthorize"})
         }
         if(decoded){
-          console.log(decoded);
           req.user = decoded
           next()
         }
@@ -135,6 +132,17 @@ async function run() {
       res.send(result)
     })
 
+    // app.get('/searchPost',async(req,res)=> {
+    //   const query = req.query.search;
+    //   const results = await queryPostCollection.find({ $text: { $search: query } }).toArray();
+    //   res.send(results)
+    //   console.log(results);
+    //   // const query = {
+    //   //   productName: {
+    //   //     $regex: search
+    //   //   },$options:'i'
+    //   // }
+    // })
 
     // app.patch('/update')
     app.patch('/update/:id',async(req,res)=>{
