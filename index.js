@@ -96,6 +96,9 @@ async function run() {
     })
     
     app.get('/recommendationPost',varifyToken,async(req,res)=> {
+      if(req.user.email !== req.query.email){
+          return res.status(403).send({message:'Forbidden Access'})
+      }
       const email = req.query.email;
       const query = {
         userEmail: email
@@ -114,6 +117,9 @@ async function run() {
     })
 
     app.get('/myrecommendation',varifyToken,async(req,res)=> {
+      if(req.user.email !== req.query.email){
+        return res.status(403).send({message:'Forbidden Access'})
+    }
       const email = req.query.email;
       const query = {
         recommendUserEmail: email
@@ -134,19 +140,33 @@ async function run() {
       res.send(result)
     })
 
-    // app.get('/searchPost',async(req,res)=> {
-    //   const query = req.query.search;
-    //   const results = await queryPostCollection.find({ $text: { $search: query } }).toArray();
-    //   res.send(results)
-    //   console.log(results);
-    //   // const query = {
-    //   //   productName: {
-    //   //     $regex: search
-    //   //   },$options:'i'
-    //   // }
-    // })
+    app.get('/queryallpost', async(req,res)=> {
+      const size = parseInt(req.query.size);
+      const page = parseInt(req.query.page) - 1;
+      const search = req.query.search
+      // console.log(size,page);
+      let query = {}
+      if(search){
+        query = {
+          productName:{$regex:search , $options:'i'},
+        }
 
-    // app.patch('/update')
+      }
+
+      const result = await queryPostCollection.find(query).skip(size * page).limit(size).toArray()
+      res.send(result)
+    })
+
+
+    // pagenation && search
+
+    app.get('/queryCount',async(req,res)=> {
+      
+      const count = await queryPostCollection.countDocuments()
+
+      res.send({count})
+    })
+
     app.patch('/update/:id',async(req,res)=>{
       const id = req.params.id;
       const updateData = req.body;
