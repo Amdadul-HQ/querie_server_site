@@ -58,21 +58,33 @@ async function run() {
         }
       })
     }
-    const quantity = 1
     // Stripe seassin api
     app.post('/create-checkout-session',async(req,res)=>{
-      const planPrice = req.body.planPrice
-      console.log(planPrice);
-      if(planPrice == 0){
-        
-      }
+      const quantity = 1 
       const session = await stripe.checkout.sessions.create({
         success_url: `${process.env.ClIENT_URL}`,
         cancel_url:`${process.env.ClIENT_URL}`,
         line_items :[
           {
             price: process.env.STRIP_BASIC_ID,
-            quantity:quantity
+            quantity:quantity 
+          }
+        ],
+        mode:'subscription'
+      })
+      const sessionId = session.id
+      console.log(sessionId);
+      res.send({url:session.url})
+    })
+    app.post('/create-checkout-session-expart',async(req,res)=>{
+      const quantity = 1 
+      const session = await stripe.checkout.sessions.create({
+        success_url: `${process.env.ClIENT_URL}`,
+        cancel_url:`${process.env.ClIENT_URL}`,
+        line_items :[
+          {
+            price: process.env.STRIP_EXPART_ID,
+            quantity:quantity 
           }
         ],
         mode:'subscription'
